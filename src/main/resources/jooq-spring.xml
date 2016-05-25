@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:jdbc="http://www.springframework.org/schema/jdbc"  
+	xmlns:jee="http://www.springframework.org/schema/jee" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.1.xsd
+		http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-4.1.xsd
+		http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-4.1.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.1.xsd
+		http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa.xsd"
+	>
+	
+	<context:property-placeholder location="classpath*:application.properties" />
+			
+	<bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+		<property name="driverClassName" value="${jdbc.driver}" />
+		<property name="jdbcUrl" value="${jdbc.url}" />
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+		<property name="autoCommit" value="${jdbc.pool.autoCommit}" />
+		<property name="connectionTimeout" value="${jdbc.pool.connectionTimeout}" />
+		<property name="idleTimeout" value="${jdbc.pool.idleTimeout}" />
+		<property name="maxLifetime" value="${jdbc.pool.maxLifetime}" />
+		<property name="connectionTestQuery" value="${jdbc.pool.connectionTestQuery}" />
+		<property name="minimumIdle" value="${jdbc.pool.minimumIdle}" />
+		<property name="maximumPoolSize" value="${jdbc.pool.maximumPoolSize}" />
+	</bean>
+		
+	<!-- 配置事务管理器 -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+	
+	<!-- Spring 使用注解方式来使用事务 -->
+    <tx:annotation-driven proxy-target-class="true" transaction-manager="transactionManager" />
+    
+    <bean id="transactionAwareDataSource" class="org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy">
+        <constructor-arg ref="dataSource" />
+    </bean>
+    
+    <!-- Configure jOOQ's ConnectionProvider to use Spring's TransactionAwareDataSourceProxy, which can dynamically discover the transaction context -->
+    <bean name="connectionProvider" class="org.jooq.impl.DataSourceConnectionProvider" >
+        <constructor-arg ref="transactionAwareDataSource" />
+    </bean>
+    
+    <bean id="exceptionTranslator" class="org.jooq.example.spring.exception.ExceptionTranslator" />
+    
+    <!-- Invoking an internal, package-private constructor for the example Implement your own Configuration for more reliable behaviour -->
+    <bean name="config" class="org.jooq.impl.DefaultConfiguration" >
+        <property name="SQLDialect">
+        	<value type="org.jooq.SQLDialect">${jdbc.sqldialect}</value>
+        </property>
+        <property name="connectionProvider" ref="connectionProvider" />
+        <property name="executeListenerProvider">
+            <array>
+                <bean class="org.jooq.impl.DefaultExecuteListenerProvider">
+                    <constructor-arg index="0" ref="exceptionTranslator"/>
+                </bean>
+            </array>
+        </property>
+    </bean>
+    
+    <!-- Configure the DSL object, optionally overriding jOOQ Exceptions with Spring Exceptions -->
+    <bean id="dsl" class="org.jooq.impl.DefaultDSLContext">
+        <constructor-arg ref="config" />
+    </bean>
+</beans>
