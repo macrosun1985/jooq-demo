@@ -17,7 +17,8 @@
 		<junit.version>4.12</junit.version>
 		<ehcache.version>2.5.0</ehcache.version>
 		<guava.version>18.0</guava.version>
-		<jooq.version>3.8.1</jooq.version>
+		<jooq.version>3.8.2</jooq.version>
+		<mysql.version>5.1.36</mysql.version>
 	</properties>
 	
 	<dependencies>
@@ -40,20 +41,6 @@
 			<scope>runtime</scope>
 		</dependency>
 		
-		<!-- connection pool -->
-		<dependency>
-			<groupId>com.zaxxer</groupId>
-			<artifactId>HikariCP</artifactId>
-			<version>2.4.6</version>
-		</dependency>
-		
-		<!-- driver -->
-		<dependency>
-		    <groupId>mysql</groupId>
-		    <artifactId>mysql-connector-java</artifactId>
-		    <version>5.1.36</version>
-		</dependency>
-
 		<!-- Web  -->
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -78,7 +65,12 @@
 			<version>2.2</version>
 			<scope>provided</scope>
 		</dependency>
-		
+		<dependency>
+		   <groupId>commons-fileupload</groupId>
+		   <artifactId>commons-fileupload</artifactId>
+		   <version>1.2.1</version>
+		</dependency>
+
 		<!-- Cache -->
 		<dependency>
 			<groupId>net.sf.ehcache</groupId>
@@ -156,6 +148,8 @@
 			<artifactId>spring-context-support</artifactId>
 			<version>${spring.version}</version>
 		</dependency>
+		
+		<!-- data access -->
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-tx</artifactId>
@@ -166,7 +160,31 @@
 		    <artifactId>spring-jdbc</artifactId>
 		    <version>${spring.version}</version>
 		</dependency>
-
+		<dependency>
+		    <groupId>org.jooq</groupId>
+		    <artifactId>jooq</artifactId>
+		    <version>${jooq.version}</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.jooq</groupId>
+		    <artifactId>jooq-codegen</artifactId>
+		    <version>${jooq.version}</version>
+		</dependency>
+		
+		<!-- data pool -->
+		<dependency>
+			<groupId>com.zaxxer</groupId>
+			<artifactId>HikariCP</artifactId>
+			<version>2.4.6</version>
+		</dependency>
+		
+		<!-- data driver -->
+		<dependency>
+		    <groupId>mysql</groupId>
+		    <artifactId>mysql-connector-java</artifactId>
+		    <version>${mysql.version}</version>
+		</dependency>
+					
 		<!-- Test -->
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -188,18 +206,7 @@
 			<version>${guava.version}</version>
 		</dependency>
 		
-		<!-- jooq -->
-		<dependency>
-		    <groupId>org.jooq</groupId>
-		    <artifactId>jooq</artifactId>
-		    <version>${jooq.version}</version>
-		</dependency>
 		
-		<dependency>
-		    <groupId>org.jooq</groupId>
-		    <artifactId>jooq-codegen</artifactId>
-		    <version>${jooq.version}</version>
-		</dependency>
 		
 	</dependencies>
 	
@@ -306,13 +313,11 @@
                 </executions>
             </plugin>
 			
-			<!--数据库代码生成的插件 -->
+			<!--数据库代码生成的插件
 			<plugin>
-			    <!-- Specify the maven code generator plugin -->
 			    <groupId>org.jooq</groupId>
 			    <artifactId>jooq-codegen-maven</artifactId>
 			    <version>${jooq.version}</version>
-			    <!-- The plugin should hook into the generate goal -->
 			    <executions>
 			        <execution>
 			            <goals>
@@ -325,19 +330,17 @@
 			    	<dependency>
 					    <groupId>mysql</groupId>
 					    <artifactId>mysql-connector-java</artifactId>
-					    <version>5.1.36</version>
+					    <version>${mysql.version}</version>
 					</dependency>
 				</dependencies>
 
 			    <configuration>
-			        <!-- JDBC connection parameters -->
 			        <jdbc>
 			            <driver>${jdbc.driver}</driver>
 			            <url>${jdbc.url}</url>
 			            <user>${jdbc.username}</user>
 			            <password>${jdbc.password}</password>
 			        </jdbc>
-			        <!-- Generator parameters -->
 			        <generator>
 			            <database>
 			                <name>org.jooq.util.mysql.MySQLDatabase</name>
@@ -367,8 +370,9 @@
 			        </generator>
 			    </configuration>
     		</plugin>
-        
+        	 -->
 		</plugins>
+		
 		<pluginManagement>
 			<plugins>
 				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
